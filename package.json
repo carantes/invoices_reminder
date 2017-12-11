@@ -6,9 +6,10 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint ./src",
-    "build": "rimraf dist/ && babel ./ -o dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
+    "build": "rimraf dist/ && babel ./ -d dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "start": "npm run build && node dist/src/app.js",
-    "mock:mac": "./mocks/commservice/commservice.mac"
+    "mock:mac": "./mocks/commservice/commservice.mac",
+    "mock:linux": "./mocks/commservice/commservice.linux"
   },
   "author": "Carlos Arantes",
   "license": "ISC",
@@ -18,7 +19,8 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "moment": "^2.19.3",
-    "mongoose": "^4.13.6"
+    "mongoose": "^4.13.6",
+    "node-fetch": "^1.7.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

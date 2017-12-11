@@ -1,13 +1,20 @@
-import dotenv from 'dotenv';
-import server from './helpers/server';
+// import dotenv from 'dotenv';
+import moment from 'moment';
+// import server from './helpers/server';
 import scheduler from './helpers/scheduler';
-import invoiceReminder from './workers/invoiceReminder';
+import notificationWorker from './workers/notificationWorker';
+import { customers } from './sample.json';
 
-dotenv.config();
-const { CRONTIME, PORT } = process.env;
+// dotenv.config();
+// const { CRONTIME } = process.env;
 
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`) //eslint-disable-line
+const startDate = moment();
+
+console.log('Start Date', startDate.format('h:mm:ss a'));
+
+customers.forEach((customer) => {
+    customer.schedule.forEach((nextDate) => {
+        const fireDate = new Date(startDate.clone().add(nextDate, 'seconds').format());
+        scheduler.start(fireDate, () => notificationWorker.run(customer));
+    });
 });
-
-scheduler.start(CRONTIME, () => invoiceReminder.run());
