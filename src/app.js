@@ -1,33 +1,35 @@
 import dotenv from 'dotenv';
-import moment from 'moment';
-import reader from './helpers/reader';
-import scheduler from './helpers/scheduler';
+import Logger from './helpers/logger';
+import Reader from './helpers/reader';
+import NotificationManager from './models/notificationManager';
+import NotificationWorker from './workers/notificationWorker';
 import Notification from './models/notification';
-import notificationWorker from './workers/notificationWorker';
 
 dotenv.config();
 const { FILENAME } = process.env;
 
-const queue = [];
-const data = reader.readFromCSV(FILENAME);
+const data = Reader.readFromCSV(FILENAME);
+const queue = new NotificationManager();
+
+Logger.log('Reminder app started');
+
+const scheduleNotification = (notification) => {
+    queue.scheduleNotification(
+        notification,
+        () => NotificationWorker.run(notification, scheduleNotification),
+        () => Logger.log(`Schedule stopped: ${notification.email}`),
+    );
+};
 
 data.forEach((row) => {
     const dataRow = row.split(';');
     const email = dataRow[0];
     const message = dataRow[1];
     const schedule = dataRow[2].split('-');
-    queue.push(new Notification(email, message, schedule));
+    const notification = new Notification(email, message, schedule);
+    queue.push(notification);
 });
 
-console.log(queue.length);
+queue.start(scheduleNotification);
 
-// now
-const startDate = moment();
-
-queue.forEach((notification) => {
-    scheduler.start(
-        notification.getFireDate(startDate),
-        () => notificationWorker.run(notification),
-        () => notificationWorker.onStop(),
-    );
-});
+// setInterval(() => Logger.log('Queue is sleeping...'), 5000);
