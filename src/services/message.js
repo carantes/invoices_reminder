@@ -1,5 +1,13 @@
 import fetch from 'node-fetch';
 
+const handleFetchErrors = (res) => {
+    if (res.status !== 201) {
+        throw new Error('Failed to delivery message');
+    }
+
+    return res;
+};
+
 const messageService = () => (
     {
         send(email, text) {
@@ -9,7 +17,9 @@ const messageService = () => (
                     email,
                     text,
                 }),
-            });
+            })
+                .then(handleFetchErrors)
+                .then(res => res.json());
         },
     }
 );

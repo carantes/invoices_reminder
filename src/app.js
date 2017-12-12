@@ -1,20 +1,33 @@
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import moment from 'moment';
-// import server from './helpers/server';
+import reader from './helpers/reader';
 import scheduler from './helpers/scheduler';
+import Notification from './models/notification';
 import notificationWorker from './workers/notificationWorker';
-import { customers } from './sample.json';
 
-// dotenv.config();
-// const { CRONTIME } = process.env;
+dotenv.config();
+const { FILENAME } = process.env;
 
+const queue = [];
+const data = reader.readFromCSV(FILENAME);
+
+data.forEach((row) => {
+    const dataRow = row.split(';');
+    const email = dataRow[0];
+    const message = dataRow[1];
+    const schedule = dataRow[2].split('-');
+    queue.push(new Notification(email, message, schedule));
+});
+
+console.log(queue.length);
+
+// now
 const startDate = moment();
 
-console.log('Start Date', startDate.format('h:mm:ss a'));
-
-customers.forEach((customer) => {
-    customer.schedule.forEach((nextDate) => {
-        const fireDate = new Date(startDate.clone().add(nextDate, 'seconds').format());
-        scheduler.start(fireDate, () => notificationWorker.run(customer));
-    });
+queue.forEach((notification) => {
+    scheduler.start(
+        notification.getFireDate(startDate),
+        () => notificationWorker.run(notification),
+        () => notificationWorker.onStop(),
+    );
 });

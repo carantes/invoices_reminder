@@ -2,11 +2,11 @@ import { CronJob } from 'cron';
 
 const schedulerFactory = () => (
     {
-        start(cronTime, onTick) {
+        start(cronTime, onTick, onComplete) {
             return new CronJob(
                 cronTime,
                 onTick,
-                null,
+                onComplete,
                 true,
                 '',
             );
