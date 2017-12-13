@@ -5,7 +5,7 @@ const notificationWorker = () => (
     {
         run(notification, scheduleNext) {
             const { email, message } = notification;
-            messageService.send(email, message)
+            return messageService.send(email, message)
                 .then((res) => {
                     const { paid } = res;
                     Logger.log(`Message sent to: ${email} after ${notification.waitTime} and return paid: ${paid} and have ${notification.childs.length} childs`);
@@ -15,10 +15,7 @@ const notificationWorker = () => (
                         scheduleNext(nextNotification);
                     }
                 })
-                .catch(error => console.error(error.message));
-        },
-        onStop() {
-            Logger.log('update state');
+                .catch(error => console.error(error.message)); //eslint-disable-line
         },
     }
 );

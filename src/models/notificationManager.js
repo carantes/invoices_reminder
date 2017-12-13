@@ -1,9 +1,8 @@
-import moment from 'moment';
 import scheduler from '../helpers/scheduler';
 import Logger from '../helpers/logger';
 
 function NotificationManager() {
-    this.startDate = moment();
+    this.startDate = null;
     this.queue = [];
 }
 
@@ -11,31 +10,20 @@ function push(notification) {
     this.queue.push(notification);
 }
 
-function start(cb) {
+function getNext() {
     this.queue.sort((a, b) => a.waitTime - b.waitTime);
-    this.startDate = moment();
-
-    this.queue.forEach((notification) => {
-        cb(notification);
-    });
+    return this.queue.shift();
 }
 
-function scheduleNotification(notification, onFire, onComplete) {
-    let fireDate = notification.getFireDate(this.startDate);
-    const now = moment();
+function scheduleNotification(notification, onFire) {
+    const fireDate = notification.getFireDate(this.startDate);
 
-    // delayed messages
-    if (moment(fireDate).isBefore(now)) {
-        Logger.log(`Message to ${notification.email} is delayed`);
-        fireDate = new Date();
-    }
-
-    scheduler.start(fireDate, onFire, onComplete);
+    scheduler.start(fireDate, onFire);
     Logger.log(`Scheduled notification to ${notification.email} on ${fireDate}`);
 }
 
 NotificationManager.prototype.scheduleNotification = scheduleNotification;
 NotificationManager.prototype.push = push;
-NotificationManager.prototype.start = start;
+NotificationManager.prototype.getNext = getNext;
 
 export default NotificationManager;

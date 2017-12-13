@@ -1,11 +1,13 @@
 # InvoicesReminder
 
-Read customer data from a CSV file and sends out reminders of unsettled invoices based on the specified schedule. 
+Sample scheduler app to Read customer data from a CSV file and sends out reminders of unsettled invoices based on the specified schedule.
+*  This app is not production ready but try to follow some engineering best practices
+*  Some arquitecture tradeoffs (number of users/queue x number of retries per user, test coverage)
+*  If it was a real life scheduler app would be necessary implement a queue state persistency, because if the app crash the progress will be lost.
 
 ### Requirements
 
 * NodeJS
-
 
 ### Installing
 
@@ -19,18 +21,11 @@ npm install
 npm start
 ```
 
-> http://localhost:3000
-
-## Running the tests & code lint
+## Tests and code lint
 
 ```
 npm run check 
 ```
-
-## How this project is organized
-
-![Screenshot](mybooks-udacity.png)
-
 
 ## Authors
 

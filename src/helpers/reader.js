@@ -9,7 +9,6 @@ const reader = () => (
                 return header ? rows.filter((row, index) => index > 0) : rows;
             }
 
-            console.error('File not found', filename);
             return null;
         },
     }
